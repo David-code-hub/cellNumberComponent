@@ -5,6 +5,7 @@
         class="bg-white rounded-xl mx-auto h-fit my-auto z-10 lg:w-[700px] relative"
       >
         <div class="rounded-sm lg:p-10 p-3 py-10">
+          <!--start fallback message: when error occurs while fetching data-->
           <div
             class="bg-red-600/30 rounded-md p-3 mb-3 flex gap-5 justify-between"
             v-if="refresh"
@@ -19,6 +20,7 @@
               Refresh
             </button>
           </div>
+          <!--end fallback-->
           <label for="input-number" class="lg:text-4xl text-lg font-extrabold"
             >Phone Number
           </label>
@@ -73,16 +75,17 @@
             Please enter a valid phone number.
           </p>
         </div>
-        <!--hand loader-->
+        <!--start loader : especially helpful for users with low internet speed-->
         <div
           v-if="loading"
           class="bg-black/60 bg-blend-multiply text-center flex justify-center absolute top-0 h-full w-full rounded-xl"
         >
           <p class="my-auto text-white lg:text-lg text-sm">Loading...</p>
         </div>
+        <!--end loader-->
       </div>
     </div>
-    <!--model-->
+    <!--start model-->
     <div
       class="fixed left-0 top-0 flex h-full w-full items-center justify-center bg-black bg-opacity-50 lg:py-10 p-5 z-20"
       :class="{ hidden: !openModel }"
@@ -152,7 +155,7 @@
         </div>
       </div>
     </div>
-    <!---->
+    <!--end model-->
     <img
       src="@/assets/images/ratherchatblob.png"
       class="lg:h-[20rem] h-[15rem] w-fit object-contain lg:top-0 top-[-2em] right-0 absolute z-2"
@@ -163,15 +166,21 @@
 <script setup lang="ts">
 import { onMounted, ref } from "vue";
 
+/**
+ * ideally I'd want to have my model and loader in seperate files
+ * so that I don't have a cluttered code experience, but I decided to have everthing in
+ * one file this time due to time contraints
+ */
 interface selectedCountry {
   flag: string;
   code: string;
   countryName: string;
 }
+
 const phoneCode = ref<selectedCountry>();
 const openModel = ref(false);
 const phoneNumber = ref("");
-const allCountries: any = ref([]); //ideally you would add a ts interface
+const allCountries: any = ref([]); //add a ts interface
 const search = ref("");
 const loading = ref(false);
 const refresh = ref(false);
@@ -185,7 +194,11 @@ function selectCountry(country: any) {
   };
   openModel.value = false;
 }
-//handle fetch country data, default South Africa
+/*handle fetch country data, default South Africa
+I initially wanted to add a search function that takes a countryName as a param, but decided to 
+get all country data and use it as a single source of truth so that I don't end up having multiple 
+endpoints retrieving data(makes is harder to manage)
+*/
 async function getCountries() {
   try {
     loading.value = true;
@@ -194,10 +207,11 @@ async function getCountries() {
     );
     allCountries.value = await response.json();
 
-    //handle set rsa as default
+    //handle set rsa as default: getting south africa from the array of countries to set as default value
     let southAfrica = allCountries.value.filter(
       (country: any) => country?.name?.common === "South Africa"
     )[0];
+    //storing rsa default values as object
     phoneCode.value = {
       flag: southAfrica.flags.svg,
       code: southAfrica.idd?.root + "" + southAfrica.idd?.suffixes[0],
