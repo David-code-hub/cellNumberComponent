@@ -16,21 +16,24 @@ def score(array):
         "number": 0
     }
     for n in array:
-        if(n != threePatternFound["number"] ):
-            if(array.count(n) >= 3 ):
-                score += points[f'three{n}s']
-                threePatternFound["count"] += 1
-                threePatternFound["number"] = n
-            if n == 1:
-                score += points["one1"]
-            if n == 5:
-                score += points["one5"]
+        #check if value appears 3 or more in array
+        if(array.count(n) >= 3):
+            #add points
+            if(n != threePatternFound['number']) : score += points[f'three{n}s']
+            #store value so that we can reference it
+            threePatternFound["count"] += 1
+            threePatternFound["number"] = n
+            #if the pattern has more that 3 occurances then add the 'one' points
+            if(threePatternFound["count"] >= 4): score += points[f'one{n}']
+        #if it's normal nums : does not occure 3 or more times
+        elif n == 1 or n == 5:
+            score += points[f'one{n}']
 
     print("total",score)
     pass
 
 
-
 score([5, 1, 3, 4, 1])
 score([1, 1, 1, 3, 1])
 score([2, 4, 4, 5, 4])
+score([1, 1, 1, 1, 1])
